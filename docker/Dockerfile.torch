@@ -1,0 +1,21 @@
+# NeMo on PyTorch with the .nemo checkpoint. TORCH_INDEX picks the hardware:
+#   https://download.pytorch.org/whl/cu128    NVIDIA (needs the NVIDIA driver + container toolkit on the host)
+#   https://download.pytorch.org/whl/rocm7.1  AMD (pass /dev/kfd and /dev/dri; see compose.yaml)
+#   https://download.pytorch.org/whl/cpu      no GPU (tests this image's code path without one)
+# The torch wheels carry their own CUDA / ROCm user-space libraries, so the base image is plain Python.
+FROM python:3.12-slim
+ARG TORCH_INDEX=https://download.pytorch.org/whl/cu128
+ARG TORCH_VERSION=2.11.0
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg libsndfile1 build-essential && rm -rf /var/lib/apt/lists/*
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+RUN uv pip install --system --no-cache --index-url "$TORCH_INDEX" "torch==$TORCH_VERSION" "torchaudio==$TORCH_VERSION"
+WORKDIR /app
+COPY pyproject.toml ./
+COPY hebrish_server ./hebrish_server
+# torch is already installed from TORCH_INDEX; keep uv from swapping it for the PyPI build
+RUN echo "torch==$TORCH_VERSION" > /tmp/keep.txt && echo "torchaudio==$TORCH_VERSION" >> /tmp/keep.txt \
+ && uv pip install --system --no-cache --index-strategy unsafe-best-match \
+      --extra-index-url "$TORCH_INDEX" -c /tmp/keep.txt ".[nemo]"
+ENV HEBRISH_HOST=0.0.0.0 HEBRISH_MODELS_DIR=/models HEBRISH_ENGINE=nemo HEBRISH_DEVICE=auto
+EXPOSE 8870
+CMD ["python", "-m", "hebrish_server"]

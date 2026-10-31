@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hebrish Server</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>Hebrish Server <span class="badge">PoC</span></h1>
+  <p id="status" class="muted">Checking the server…</p>
+</header>
+<main>
+  <section class="card">
+    <h2>Transcribe</h2>
+    <div id="drop" class="drop">Drop an audio or video file here, or <label class="link">choose one<input id="file" type="file" accept="audio/*,video/*" hidden></label></div>
+    <div class="row">
+      <button id="rec">● Record</button>
+      <span id="rec-note" class="muted"></span>
+    </div>
+    <div class="row">
+      <label>Paragraphs
+        <select id="paragraphs"><option value="none">None</option><option value="time">Time-based</option></select>
+      </label>
+      <label><input type="checkbox" id="cleanup"> Clean up (S1-mini)</label>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Result</h2>
+    <p id="job-meta" class="muted">Nothing yet.</p>
+    <textarea id="out" rows="12" placeholder="The transcript appears here, piece by piece."></textarea>
+    <div class="row"><button id="copy">Copy</button><button id="raw" hidden>Show raw transcript</button></div>
+  </section>
+  <section class="card">
+    <h2>Jobs</h2>
+    <table><thead><tr><th>File</th><th>Status</th><th>Audio</th><th>Speed</th><th>Options</th></tr></thead><tbody id="jobs"></tbody></table>
+    <p class="muted">Kept in memory only; a restart clears them. API: <a href="/docs">/docs</a>.</p>
+  </section>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>

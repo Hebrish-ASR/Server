@@ -1,0 +1,57 @@
+# One service per hardware profile; start exactly one:
+#   docker compose --profile cpu up -d --build     sherpa-onnx int8, CPU
+#   docker compose --profile nvidia up -d --build  NeMo, CUDA
+#   docker compose --profile rocm up -d --build    NeMo, ROCm
+#   docker compose --profile nemo-cpu up -d --build  NeMo on the CPU (tests the GPU image's code path without a GPU)
+# BIND is the host address to publish on (no authentication: localhost, LAN or tailnet only). Default 127.0.0.1.
+x-common: &common
+  restart: unless-stopped
+  ports: ["${BIND:-127.0.0.1}:${PORT:-8870}:8870"]
+  volumes: ["./models:/models"]
+  environment: &env
+    HEBRISH_CLEANUP_URL: ${CLEANUP_URL:-http://host.docker.internal:11434}
+    HEBRISH_CLEANUP_MODEL: ${CLEANUP_MODEL:-s1-mini}
+    HEBRISH_THREADS: ${THREADS:-6}
+    HEBRISH_MODEL: ${MODEL:-sabich}
+    HF_TOKEN: ${HF_TOKEN:-}
+  extra_hosts: ["host.docker.internal:host-gateway"]
+
+services:
+  cpu:
+    <<: *common
+    profiles: [cpu]
+    container_name: hebrish-server
+    build: { context: ., dockerfile: docker/Dockerfile.cpu }
+    image: hebrish-server:cpu
+
+  nemo-cpu:
+    <<: *common
+    profiles: [nemo-cpu]
+    container_name: hebrish-server
+    build: { context: ., dockerfile: docker/Dockerfile.torch, args: { TORCH_INDEX: "https://download.pytorch.org/whl/cpu" } }
+    image: hebrish-server:nemo-cpu
+    environment: { <<: *env, HEBRISH_DEVICE: cpu }
+
+  nvidia:
+    <<: *common
+    profiles: [nvidia]
+    container_name: hebrish-server
+    build: { context: ., dockerfile: docker/Dockerfile.torch, args: { TORCH_INDEX: "https://download.pytorch.org/whl/cu128" } }
+    image: hebrish-server:cuda
+    environment: { <<: *env, HEBRISH_DEVICE: cuda }
+    deploy:
+      resources:
+        reservations:
+          devices: [{ driver: nvidia, count: 1, capabilities: [gpu] }]
+
+  rocm:
+    <<: *common
+    profiles: [rocm]
+    container_name: hebrish-server
+    build: { context: ., dockerfile: docker/Dockerfile.torch, args: { TORCH_INDEX: "https://download.pytorch.org/whl/rocm7.1" } }
+    image: hebrish-server:rocm
+    devices: ["/dev/kfd", "/dev/dri"]
+    group_add: ["video", "render"]
+    security_opt: ["seccomp=unconfined"]
+    # A card missing from the torch build's gfx list needs HSA_OVERRIDE_GFX_VERSION (README, "ROCm")
+    environment: { <<: *env, HEBRISH_DEVICE: cuda }
