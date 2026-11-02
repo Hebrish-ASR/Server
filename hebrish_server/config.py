@@ -20,10 +20,10 @@ PORT = int(_env("HEBRISH_PORT", "8870"))
 # engine sherpa_offline_transducer). The manifest follows each model's current version. To add a
 # model, add its catalogue id, manifest URL and feature_dim here (README, "Adding models").
 MODELS = {
-    "sabich": {"manifest": "https://cdn.hebrish.app/models/parakeet-sabich/latest.json", "feature_dim": 128},
-    "sabich-parakeet-110m": {"manifest": "https://cdn.hebrish.app/models/parakeet-sabich-110m/latest.json",
+    "sabich": {"manifest": "https://cdn.hebrish.app/models/sabich/latest.json", "feature_dim": 128},
+    "sabich-parakeet-110m": {"manifest": "https://cdn.hebrish.app/models/sabich-110m/latest.json",
                              "feature_dim": 80},
-    "jachnun": {"manifest": "https://cdn.hebrish.app/models/parakeet-codeswitch/latest.json", "feature_dim": 128},
+    "jachnun": {"manifest": "https://cdn.hebrish.app/models/jachnun/latest.json", "feature_dim": 128},
 }
 MODEL = _env("HEBRISH_MODEL", "sabich")               # a key of MODELS (sherpa engine)
 if MODEL not in MODELS:

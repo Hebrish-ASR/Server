@@ -44,9 +44,9 @@ sha256-checked, and updated to the model's current version on a restart.
 
 | `HEBRISH_MODEL` | Model | Manifest |
 |---|---|---|
-| `sabich` (default) | Sabich, code-switching and tech vocabulary; the model the apps recommend | `cdn.hebrish.app/models/parakeet-sabich/latest.json` |
-| `sabich-parakeet-110m` | Sabich-Parakeet-110M, a smaller, faster Sabich (`feature_dim` 80) | `cdn.hebrish.app/models/parakeet-sabich-110m/latest.json` |
-| `jachnun` | Jachnun | `cdn.hebrish.app/models/parakeet-codeswitch/latest.json` |
+| `sabich` (default) | Sabich, code-switching and tech vocabulary; the model the apps recommend | `cdn.hebrish.app/models/sabich/latest.json` |
+| `sabich-parakeet-110m` | Sabich-Parakeet-110M, a smaller, faster Sabich (`feature_dim` 80) | `cdn.hebrish.app/models/sabich-110m/latest.json` |
+| `jachnun` | Jachnun | `cdn.hebrish.app/models/jachnun/latest.json` |
 
 The `nemo` engine serves Sabich only (the full-precision `.nemo` checkpoint, below). Model
 descriptions and results: [hebrish.app/models](https://hebrish.app/models).
